@@ -1,20 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from 'material-ui/Button';
-import Dialog, {
+import Button from '@material-ui/core/Button';
+import {
+    Dialog,
     DialogTitle,
     DialogContent,
     DialogContentText,
     DialogActions,
-} from 'material-ui/Dialog';
-import Typography from 'material-ui/Typography';
-import { withStyles } from 'material-ui/styles';
+} from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles/';
 import withRoot from '../lib/withRoot';
 
 const styles = theme => ({
     root: {
         textAlign: 'center',
-        paddingTop: theme.spacing.unit * 20,
+        paddingTop: theme.spacing(20),
     },
 });
 

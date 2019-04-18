@@ -4,6 +4,47 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import getPageContext from '../lib/getPageContext';
 
 class MyDocument extends Document {
+    static getInitialProps(ctx) {
+        // Resolution order
+        //
+        // On the server:
+        // 1. page.getInitialProps
+        // 2. document.getInitialProps
+        // 3. page.render
+        // 4. document.render
+        //
+        // On the server with error:
+        // 2. document.getInitialProps
+        // 3. page.render
+        // 4. document.render
+        //
+        // On the client
+        // 1. page.getInitialProps
+        // 3. page.render
+
+        // Get the context of the page to collected side effects.
+        const pageContext = getPageContext();
+        const page = ctx.renderPage(Component => props => (
+            <JssProvider
+                registry={pageContext.sheetsRegistry}
+                generateClassName={pageContext.generateClassName}
+            >
+                <Component pageContext={pageContext} {...props} />
+            </JssProvider>
+        ));
+
+        return {
+            ...page,
+            pageContext,
+            styles: (
+                <style
+                    id="jss-server-side"
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: pageContext.sheetsRegistry.toString() }}
+                />
+            ),
+        };
+    }
     render() {
         const { pageContext } = this.props;
 
@@ -35,47 +76,5 @@ class MyDocument extends Document {
         );
     }
 }
-
-MyDocument.getInitialProps = ctx => {
-    // Resolution order
-    //
-    // On the server:
-    // 1. page.getInitialProps
-    // 2. document.getInitialProps
-    // 3. page.render
-    // 4. document.render
-    //
-    // On the server with error:
-    // 2. document.getInitialProps
-    // 3. page.render
-    // 4. document.render
-    //
-    // On the client
-    // 1. page.getInitialProps
-    // 3. page.render
-
-    // Get the context of the page to collected side effects.
-    const pageContext = getPageContext();
-    const page = ctx.renderPage(Component => props => (
-        <JssProvider
-            registry={pageContext.sheetsRegistry}
-            generateClassName={pageContext.generateClassName}
-        >
-            <Component pageContext={pageContext} {...props} />
-        </JssProvider>
-    ));
-
-    return {
-        ...page,
-        pageContext,
-        styles: (
-            <style
-                id="jss-server-side"
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: pageContext.sheetsRegistry.toString() }}
-            />
-        ),
-    };
-};
 
 export default MyDocument;
